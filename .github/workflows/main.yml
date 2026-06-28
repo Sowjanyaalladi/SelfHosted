@@ -1,14 +1,37 @@
-name: Hello World
+name: Terraform Create S3 Bucket
 
 on:
   push:
     branches: [main]
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
-  hello:
+  terraform:
     runs-on: self-hosted
     steps:
-      - name: Say Hello
-        run: echo "Hello from my own machine!"
-        
-        
+      - uses: actions/checkout@v3
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::010624488459:role/sowji
+          aws-region: us-east-1
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./terraform
+
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: ./terraform
+
+      - name: Terraform Plan
+        run: terraform plan
+        working-directory: ./terraform
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        working-directory: ./terraform
